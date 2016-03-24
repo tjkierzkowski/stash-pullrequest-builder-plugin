@@ -1,6 +1,7 @@
 package stashpullrequestbuilder.stashpullrequestbuilder;
 
-import hudson.model.AbstractBuild;
+//import hudson.model.AbstractBuild;
+import hudson.model.Run;
 import hudson.model.Cause;
 import hudson.model.Result;
 import jenkins.model.Jenkins;
@@ -22,7 +23,7 @@ public class StashBuilds {
         this.repository = repository;
     }
 
-    public StashCause getCause(AbstractBuild build) {
+    public StashCause getCause(Run build) {
         Cause cause = build.getCause(StashCause.class);
         if (cause == null || !(cause instanceof StashCause)) {
             return null;
@@ -30,7 +31,7 @@ public class StashBuilds {
         return (StashCause) cause;
     }
 
-    public void onStarted(AbstractBuild build) {
+    public void onStarted(Run build) {
         StashCause cause = this.getCause(build);
         if (cause == null) {
             return;
@@ -42,7 +43,7 @@ public class StashBuilds {
         }
     }
 
-    public void onCompleted(AbstractBuild build) {
+    public void onCompleted(Run build) {
         StashCause cause = this.getCause(build);
         if (cause == null) {
             return;

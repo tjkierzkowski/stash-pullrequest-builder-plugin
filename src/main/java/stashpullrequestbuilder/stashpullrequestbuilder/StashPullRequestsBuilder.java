@@ -1,5 +1,6 @@
 package stashpullrequestbuilder.stashpullrequestbuilder;
 
+import hudson.model.Job;
 import stashpullrequestbuilder.stashpullrequestbuilder.stash.StashPullRequestResponseValue;
 import hudson.model.AbstractProject;
 
@@ -11,7 +12,7 @@ import java.util.logging.Logger;
  */
 public class StashPullRequestsBuilder {
     private static final Logger logger = Logger.getLogger(StashBuildTrigger.class.getName());
-    private AbstractProject<?, ?> project;
+    private Job<?, ?> project;
     private StashBuildTrigger trigger;
     private StashRepository repository;
     private StashBuilds builds;
@@ -40,7 +41,7 @@ public class StashPullRequestsBuilder {
         return this;
     }
 
-    public void setProject(AbstractProject<?, ?> project) {
+    public void setProject(Job<?, ?> project) {
         this.project = project;
     }
 
@@ -48,7 +49,7 @@ public class StashPullRequestsBuilder {
         this.trigger = trigger;
     }
 
-    public AbstractProject<?, ?> getProject() {
+    public Job<?, ?> getProject() {
         return this.project;
     }
 

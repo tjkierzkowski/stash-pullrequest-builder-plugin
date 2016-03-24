@@ -29,7 +29,7 @@ import java.util.logging.Logger;
 /**
  * Created by Nathan McCarthy
  */
-public class StashBuildTrigger extends Trigger<AbstractProject<?, ?>> {
+public class StashBuildTrigger extends Trigger<Job<?, ?>> {
     private static final Logger logger = Logger.getLogger(StashBuildTrigger.class.getName());
     private final String projectPath;
     private final String cron;
@@ -152,8 +152,7 @@ public class StashBuildTrigger extends Trigger<AbstractProject<?, ?>> {
         return targetBranchesToBuild;
     }
 
-    @Override
-    public void start(AbstractProject<?, ?> project, boolean newInstance) {
+    public void start(Job<?, ?> project, boolean newInstance) {
         try {
             this.stashPullRequestsBuilder = StashPullRequestsBuilder.getBuilder();
             this.stashPullRequestsBuilder.setProject(project);
@@ -212,7 +211,7 @@ public class StashBuildTrigger extends Trigger<AbstractProject<?, ?>> {
 
     @Override
     public void run() {
-        if(this.getBuilder().getProject().isDisabled()) {
+        if(this.getBuilder().getProject().isBuildable()) {
             logger.info("Build Skip.");
         } else {
             this.stashPullRequestsBuilder.run();
