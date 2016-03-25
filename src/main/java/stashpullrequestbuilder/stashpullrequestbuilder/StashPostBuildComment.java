@@ -3,10 +3,7 @@ package stashpullrequestbuilder.stashpullrequestbuilder;
 import hudson.Util;
 import hudson.Extension;
 import hudson.Launcher;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
-import hudson.model.BuildListener;
-import hudson.model.Result;
+import hudson.model.*;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Notifier;
@@ -49,17 +46,17 @@ public class StashPostBuildComment extends Notifier {
         this.buildFailedComment = buildFailedComment;
     }
 
-    @Override
-    public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
+
+    public boolean perform(Run<?, ?> run, Launcher launcher, TaskListener listener) {
 
         try {
-          build.addAction(new StashPostBuildCommentAction(
-            Util.fixEmptyAndTrim(build.getEnvironment(listener).expand(buildSuccessfulComment)),
-            Util.fixEmptyAndTrim(build.getEnvironment(listener).expand(buildFailedComment))
+          run.addAction(new StashPostBuildCommentAction(
+            Util.fixEmptyAndTrim(run.getEnvironment(listener).expand(buildSuccessfulComment)),
+            Util.fixEmptyAndTrim(run.getEnvironment(listener).expand(buildFailedComment))
           ));
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Unable to parse comments", e);
-            listener.finished(Result.FAILURE);
+            listener.error(Result.FAILURE.toString());
             return false;
         }
 

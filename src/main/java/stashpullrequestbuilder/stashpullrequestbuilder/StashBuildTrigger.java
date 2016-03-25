@@ -14,6 +14,7 @@ import hudson.security.ACL;
 import hudson.triggers.Trigger;
 import hudson.triggers.TriggerDescriptor;
 import hudson.util.ListBoxModel;
+import jenkins.model.ParameterizedJobMixIn;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -29,7 +30,7 @@ import java.util.logging.Logger;
 /**
  * Created by Nathan McCarthy
  */
-public class StashBuildTrigger extends Trigger<AbstractProject<?, ?>> {
+public class StashBuildTrigger extends Trigger  {
     private static final Logger logger = Logger.getLogger(StashBuildTrigger.class.getName());
     private final String projectPath;
     private final String cron;
@@ -152,25 +153,31 @@ public class StashBuildTrigger extends Trigger<AbstractProject<?, ?>> {
         return targetBranchesToBuild;
     }
 
-    @Override
-    public void start(AbstractProject<?, ?> project, boolean newInstance) {
+    //@Override
+    public void start(Job<?, ?> job, boolean newInstance) {
         try {
             this.stashPullRequestsBuilder = StashPullRequestsBuilder.getBuilder();
-            this.stashPullRequestsBuilder.setProject(project);
+            this.stashPullRequestsBuilder.setProject(job);
             this.stashPullRequestsBuilder.setTrigger(this);
             this.stashPullRequestsBuilder.setupBuilder();
         } catch(IllegalStateException e) {
             logger.log(Level.SEVERE, "Can't start trigger", e);
             return;
         }
-        super.start(project, newInstance);
+        super.start(job, newInstance);
     }
 
-    public static StashBuildTrigger getTrigger(AbstractProject project) {
-        Trigger trigger = project.getTrigger(StashBuildTrigger.class);
+    public static StashBuildTrigger getTrigger(AbstractProject job) {
+        Trigger trigger = job.getTrigger(StashBuildTrigger.class);
+        return (StashBuildTrigger) trigger;
+        //return ParameterizedJobMixIn.getTrigger(job, StashBuildTrigger.class);
+    }
+    /**
+    public static StashBuildTrigger getTrigger(Job job) {
+        Trigger trigger = job.getTrigger(StashBuildTrigger.class);
         return (StashBuildTrigger)trigger;
     }
-
+     */
     public StashPullRequestsBuilder getBuilder() {
         return this.stashPullRequestsBuilder;
     }
@@ -195,9 +202,11 @@ public class StashBuildTrigger extends Trigger<AbstractProject<?, ?>> {
         	}
         }
 
-        return this.job.scheduleBuild2(0, cause, new ParametersAction(new ArrayList(values.values())));
+        //return this.job.scheduleBuild2(0, cause, new ParametersAction(new ArrayList(values.values())));
+        AbstractProject temp = (AbstractProject) this.job;
+        return temp.scheduleBuild2(0, cause, new ParametersAction(new ArrayList(values.values())));
     }
-
+/**
     private Map<String, ParameterValue> getDefaultParameters() {
         Map<String, ParameterValue> values = new HashMap<String, ParameterValue>();
         ParametersDefinitionProperty definitionProperty = this.job.getProperty(ParametersDefinitionProperty.class);
@@ -209,10 +218,10 @@ public class StashBuildTrigger extends Trigger<AbstractProject<?, ?>> {
         }
         return values;
     }
-
+*/
     @Override
     public void run() {
-        if(this.getBuilder().getProject().isDisabled()) {
+        if(this.getBuilder().getJob().isBuildable()) {
             logger.info("Build Skip.");
         } else {
             this.stashPullRequestsBuilder.run();
