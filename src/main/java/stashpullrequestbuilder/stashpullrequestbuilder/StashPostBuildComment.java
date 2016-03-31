@@ -46,9 +46,8 @@ public class StashPostBuildComment extends Notifier {
         this.buildFailedComment = buildFailedComment;
     }
 
-
-    public boolean perform(Run<?, ?> run, Launcher launcher, TaskListener listener) {
-
+    public boolean perform (AbstractBuild<?,?> build, Launcher launcher,BuildListener listener) {
+        Run run = (Run) build;
         try {
           run.addAction(new StashPostBuildCommentAction(
             Util.fixEmptyAndTrim(run.getEnvironment(listener).expand(buildSuccessfulComment)),
